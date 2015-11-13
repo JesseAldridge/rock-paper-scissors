@@ -1,30 +1,47 @@
-if (Meteor.isClient) {
-  // counter starts at 0
-  Session.setDefault('rps_choice', null);
+Players = new Mongo.Collection("players");
 
-  Template.hello.helpers({
-    rps_choice: function () {
-      return Session.get('rps_choice');
+if (Meteor.isClient) {
+  // Session.setDefault('rps_choice', null);
+
+  Template.body.helpers({
+    players: function () {
+      return Players.find({});
     }
   });
 
-  Template.hello.events({
-    'click .rock': function() {
-      Session.set('rps_choice', 'rock');
+  Template.player.helpers({
+    is_me: function() {
+      // return this.name == 'player1';
+      return true;
+    }
+  });
+
+  Template.player.events({
+    'click .rock': function(event) {
+      // console.log('event:', event);
+      Players.update(this._id, { $set: {choice: 'rock'} });
     },
 
     'click .paper': function() {
-      Session.set('rps_choice', 'paper');
+      Players.update(this._id, { $set: {choice: 'paper'} });
     },
 
     'click .scissors': function() {
-      Session.set('rps_choice', 'scissors');
+      Players.update(this._id, { $set: {choice: 'scissors'} });
     }
   });
 }
 
 if (Meteor.isServer) {
-  Meteor.startup(function () {
-    // code to run on server at startup
+  Players.find({choice: {$ne: null}}).observe({
+    added: function (player) {
+      console.log('added player:', player);
+    },
+    changed: function (newSetting, oldSetting) {
+      console.log('changed player:', player);
+    },
+    removed: function (oldSetting) {
+      console.log('removed player:', player);
+    }
   });
 }

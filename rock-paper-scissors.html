@@ -3,14 +3,24 @@
 </head>
 
 <body>
-  <h1>Welcome to Meteor!</h1>
-
-  {{> hello}}
+  <h1>Rock Paper Scissors</h1>
+  {{#each players}}
+    {{> player}}
+  {{/each}}
 </body>
 
-<template name="hello">
+<template name="buttons">
   <button class='rock'>Rock</button>
   <button class='paper'>Paper</button>
   <button class='scissors'>Scissors</button>
-  {{rps_choice}}
+</template>
+
+<template name="player">
+  <div class='player'>
+    <div>name: {{name}}</div>
+    <div>choice: {{choice}}</div>
+    {{#if is_me}}
+      {{> buttons}}
+    {{/if}}
+  </div>
 </template>
