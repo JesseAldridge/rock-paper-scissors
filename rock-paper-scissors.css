@@ -1,4 +1,13 @@
 
+body {
+  text-align: center
+}
+
 .player {
   margin: 50px;
+  display: inline-block;
+}
+
+.buttons {
+  margin-left: 6px;
 }

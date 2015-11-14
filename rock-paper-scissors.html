@@ -1,27 +1,49 @@
 <head>
   <title>rock-paper-scissors</title>
+  <link rel='stylesheet' href='https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css'>
 </head>
 
 <body>
-  <h1>Rock Paper Scissors</h1>
-  {{#each players}}
-    {{> player}}
-  {{/each}}
+  <h1>Rock, Paper, Scissors</h1>
+  {{#if player_id}}
+    <h4>
+      Score:
+      <span>{{me.score}}-{{them.score}}</span>
+    </h4>
+
+    <div class='player'>
+      <div>
+        Your choice:
+        {{#if me.choice}}
+          {{me.choice}}
+        {{else}}
+          ...
+        {{/if}}
+      </div>
+    </div>
+
+    <div class='player'>
+      <div>
+        Their choice:
+        {{#if them.choice}}
+          {{#if me.choice}}
+            {{them.choice}}
+          {{else}}
+            (made choice)
+          {{/if}}
+        {{else}}
+          ...
+        {{/if}}
+      </div>
+    </div>
+
+    <div class='buttons'>
+      <div choice='rock' class='btn btn-default'>Rock</div>
+      <div choice='paper' class='btn btn-default'>Paper</div>
+      <div choice='scissors' class='btn btn-default'>Scissors</div>
+    </div>
+  {{else}}
+    <a href='/player1'>Player 1</a>
+    <a href='/player2'>Player 2</a>
+  {{/if}}
 </body>
-
-<template name="buttons">
-  <button class='rock'>Rock</button>
-  <button class='paper'>Paper</button>
-  <button class='scissors'>Scissors</button>
-</template>
-
-<template name="player">
-  <div class='player'>
-    <div>name: {{name}}</div>
-    <div>score: {{score}}</div>
-    <div>choice: {{choice}}</div>
-    {{#if is_me}}
-      {{> buttons}}
-    {{/if}}
-  </div>
-</template>
