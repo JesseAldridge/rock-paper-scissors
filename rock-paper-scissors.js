@@ -1,13 +1,14 @@
 Players = new Mongo.Collection("players");
 
 if (Meteor.isClient) {
+  // Player access helpers.
+
   var get_player_id = function() {
     var match = /player1|player2/.exec(window.location.href);
     return match && match[0];
   };
 
   var find_me = function() {
-    console.log('me:', Players.findOne({name: get_player_id()}));
     return Players.findOne({name: get_player_id()});
   };
 
@@ -45,6 +46,16 @@ if (Meteor.isClient) {
 }
 
 if (Meteor.isServer) {
+  // Initialize players.
+  ['player1', 'player2'].forEach(function(name) {
+    Players.update(
+       { name: name },
+       { name: name, choice: null, score: 0},
+       { upsert: true }
+    );
+  });
+
+  // See who wins.  Increment scores.  Reset after a bit.
   var process_choices = function(player_a, player_b) {
     var result = {
       rock: {rock: 0, paper: -1, scissors: 1},
@@ -65,6 +76,7 @@ if (Meteor.isServer) {
     }, 1000);
   };
 
+  // Wait for both players to make a choice.
   var players = {};
 
   var check_both_choices = function() {
