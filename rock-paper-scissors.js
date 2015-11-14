@@ -1,8 +1,6 @@
 Players = new Mongo.Collection("players");
 
 if (Meteor.isClient) {
-  // Session.setDefault('rps_choice', null);
-
   Template.body.helpers({
     players: function () {
       return Players.find({});
@@ -11,14 +9,12 @@ if (Meteor.isClient) {
 
   Template.player.helpers({
     is_me: function() {
-      // return this.name == 'player1';
-      return true;
+      return this.name == 'player1';
     }
   });
 
   Template.player.events({
     'click .rock': function(event) {
-      // console.log('event:', event);
       Players.update(this._id, { $set: {choice: 'rock'} });
     },
 
@@ -33,15 +29,48 @@ if (Meteor.isClient) {
 }
 
 if (Meteor.isServer) {
-  Players.find({choice: {$ne: null}}).observe({
-    added: function (player) {
-      console.log('added player:', player);
+  var players = {};
+
+  var process_choices = function(player_a, player_b) {
+    console.log('process_choices:', player_a.choice, player_b.choice);
+    var result = {
+      rock: {rock: 0, paper: -1, scissors: 1},
+      paper: {rock: 1, paper: 0, scissors: -1},
+      scissors: {rock: -1, paper: 1, scissors: 0}
+    }[player_a.choice][player_b.choice];
+
+    if(result == 1)
+      player_a.score += 1;
+    else if(result == -1)
+      player_b.score += 1;
+
+    Players.update({name:player_a.name}, {$set: {score: player_a.score, choice: null}});
+    Players.update({name:player_b.name}, {$set: {score: player_b.score, choice: null}});
+  };
+
+  var check_both_choices = function() {
+    console.log('check_both_choices, players:', Object.keys(players).length);
+    if(Object.keys(players).length == 2 &&
+       ['rock', 'paper', 'scissors'].indexOf(players.player1.choice) != -1 &&
+       ['rock', 'paper', 'scissors'].indexOf(players.player2.choice) != -1)
+      process_choices(players.player1, players.player2);
+  };
+
+  Players.find({}).observe({
+    added: function(player) {
+      console.log('added:', player);
+      players[player.name] = player;
+      check_both_choices();
     },
-    changed: function (newSetting, oldSetting) {
-      console.log('changed player:', player);
+    removed: function(player) {
+      console.log('removed:', player);
+      delete players[player.name];
     },
-    removed: function (oldSetting) {
-      console.log('removed player:', player);
+    changed: function(player, old_player) {
+      console.log('changed:', player);
+      delete players[old_player.name];
+      players[player.name] = player;
+      check_both_choices();
     }
   });
 }
